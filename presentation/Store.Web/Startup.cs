@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Store.Memory;
+using System;
 
 namespace Store.Web
 {
@@ -21,6 +22,17 @@ namespace Store.Web
         public void ConfigureServices(IServiceCollection services)//Встроенный депеэнденси инжекшн
         {
             services.AddControllersWithViews();
+
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(20);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+
+            });
+
             services.AddSingleton<IBookRepository, BookRepository>();
             services.AddSingleton<BookService>();
 
@@ -45,6 +57,8 @@ namespace Store.Web
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {
